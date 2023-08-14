@@ -6,6 +6,7 @@ import com.example.signalingserver.model.SignalType;
 import com.example.signalingserver.model.User;
 import com.example.signalingserver.storage.RoomStorage;
 import com.example.signalingserver.storage.UserStorage;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,8 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+import java.io.IOException;
 
 @Component
 public class SignalingHandler extends TextWebSocketHandler {
@@ -40,44 +43,38 @@ public class SignalingHandler extends TextWebSocketHandler {
         SignalData sigRes = new SignalData();
 
         if (sigType.equalsIgnoreCase(SignalType.Create.toString())) {
-            sigRes.setType("Inform");
             if (rooms.get(sigReq.getRoomName()) == null) {
                 rooms.put(sigReq.getRoomName(), new Room(sigReq.getRoomName(), sigReq.getPassword(), session));
                 users.put(session.getId(), new User(session, sigReq.getRoomName()));
                 System.out.println("방을 생성했습니다. 방 이름: " + sigReq.getRoomName());
-                sigRes.setData("Created");
+                sendInfo("Created", session, sigRes);
             } else {
                 System.out.println("방 생성에 실패했습니다.");
                 System.out.println("Failed");
-                sigRes.setData("Failed");
+                sendInfo("Failed", session, sigRes);
             }
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(sigRes)));
         } else if (sigType.equalsIgnoreCase(SignalType.Join.toString())) {
-            sigRes.setType("Inform");
             if (rooms.get(sigReq.getRoomName()) == null
                     || !rooms.get(sigReq.getRoomName()).getPassword().equals(sigReq.getPassword())
             ) {
-                sigRes.setData("Wrong");
+                sendInfo("Wrong", session, sigRes);
                 System.out.println("방 이름 또는 비밀번호가 틀렸습니다.");
             } else if (rooms.get(sigReq.getRoomName()).isFull()) {
-                sigRes.setData("Full");
+                sendInfo("Full", session, sigRes);
                 System.out.println("해당 방의 인원이 초과되었습니다.");
             } else {
                 rooms.get(sigReq.getRoomName()).addMember(session);
                 users.put(session.getId(), new User(session, sigReq.getRoomName()));
                 System.out.println("방에 참여했습니다.");
-                sigRes.setData("Joined");
-                WebSocketSession peerSession = rooms.get(sigReq.getRoomName()).getMembers().get(0);
-                peerSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(sigRes)));
+                relayDataToPeer("Inform", "Joined", session, sigRes);
             }
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(sigRes)));
-        } else if (sigType.equalsIgnoreCase(SignalType.Answer.toString())) {
-            System.out.println("Answer왔다.");
         } else if (sigType.equalsIgnoreCase(SignalType.Offer.toString())) {
-            System.out.println("Offer왔다.");
+            relayDataToPeer("Offer", sigReq.getData(), session, sigRes);
+        } else if (sigType.equalsIgnoreCase(SignalType.Answer.toString())) {
+            relayDataToPeer("Answer", sigReq.getData(), session, sigRes);
         } else if (sigType.equalsIgnoreCase(SignalType.Ice.toString())) {
-            System.out.println("Candidate왔다.");
-
+            relayDataToPeer("Ice", sigReq.getData(), session, sigRes);
         }
     }
 
@@ -98,4 +95,22 @@ public class SignalingHandler extends TextWebSocketHandler {
         System.out.println("---> " + users.toString());
     }
 
+    private void relayDataToPeer(String type, String data, WebSocketSession mySession, SignalData sigRes) throws IOException {
+        sigRes.setType(type);
+        sigRes.setData(data);
+        WebSocketSession peerSession;
+        for (WebSocketSession memberSession : rooms.get(users.get(mySession.getId()).getRoomName()).getMembers()) {
+            if (!memberSession.getId().equals(mySession.getId())) {
+                peerSession = memberSession;
+                peerSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(sigRes)));
+                return;
+            }
+        }
+    }
+
+    private void sendInfo(String data, WebSocketSession mySession, SignalData sigRes) throws IOException {
+        sigRes.setType("Inform");
+        sigRes.setData(data);
+        mySession.sendMessage(new TextMessage(objectMapper.writeValueAsString(sigRes)));
+    }
 }

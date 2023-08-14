@@ -11,15 +11,15 @@ public class UserStorage {
 
     private ConcurrentHashMap<String, User> rooms = new ConcurrentHashMap<>();
 
-    public void put(String sessionId, User user){
+    public void put(String sessionId, User user) {
         rooms.put(sessionId, user);
     }
 
-    public User get(String sessionId){
+    public User get(String sessionId) {
         return rooms.get(sessionId);
     }
 
-    public void remove(String sessionId){
+    public void remove(String sessionId) {
         rooms.remove(sessionId);
     }
 }

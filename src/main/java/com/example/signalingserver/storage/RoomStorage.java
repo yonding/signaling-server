@@ -10,15 +10,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RoomStorage {
     private ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
 
-    public void put(String roomName, Room room){
+    public void put(String roomName, Room room) {
         rooms.put(roomName, room);
     }
 
-    public Room get(String roomName){
+    public Room get(String roomName) {
         return rooms.get(roomName);
     }
 
-    public void remove(String roomName){
+    public void remove(String roomName) {
         rooms.remove(roomName);
     }
 }
