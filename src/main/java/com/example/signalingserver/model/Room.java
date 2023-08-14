@@ -15,21 +15,22 @@ public class Room {
     private String password;
     private ArrayList<WebSocketSession> members;
 
-    public boolean isFull(){
+    public boolean isFull() {
         return members.size() == 2;
     }
 
-    public Room(String roomName, String password, WebSocketSession member){
+    public Room(String roomName, String password, WebSocketSession member) {
         this.roomName = roomName;
         this.password = password;
         members = new ArrayList<>();
         this.members.add(member);
     }
 
-    public void addMember(WebSocketSession member){
+    public void addMember(WebSocketSession member) {
         members.add(member);
     }
-    public void removeMember(WebSocketSession member){
+
+    public void removeMember(WebSocketSession member) {
         members.remove(member);
     }
 }

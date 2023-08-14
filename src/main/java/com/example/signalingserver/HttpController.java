@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.*;
 public class HttpController {
     @Autowired
     RoomStorage rooms;
+
     @GetMapping("/creatable")
-    public boolean isCreatable(String roomName){
-        if(rooms.get(roomName)==null){
+    public boolean isCreatable(String roomName) {
+        if (rooms.get(roomName) == null) {
             System.out.println("클라이언트가 만들고자 하는 방의 이름이 중복되지 않습니다.");
             return true;
         }
@@ -22,16 +23,14 @@ public class HttpController {
     }
 
     @PostMapping("/joinable")
-    public String isJoinable(@RequestBody Room room){
-        if(rooms.get(room.getRoomName())==null) {
+    public String isJoinable(@RequestBody Room room) {
+        if (rooms.get(room.getRoomName()) == null) {
             System.out.println("클라이언트가 참여하고자하는 방이 존재하지 않습니다.");
             return "null";
-        }
-        else if(!rooms.get(room.getRoomName()).getPassword().equals(room.getPassword())) {
+        } else if (!rooms.get(room.getRoomName()).getPassword().equals(room.getPassword())) {
             System.out.println("클라이언트가 비밀번호가 틀렸습니다.");
             return "wrong";
-        }
-        else if(rooms.get(room.getRoomName()).isFull()) {
+        } else if (rooms.get(room.getRoomName()).isFull()) {
             System.out.println("클라이언트가 참여하고자 하는 방이 인원 초과입니다.");
             return "full";
         }

@@ -44,7 +44,7 @@ public class SignalingHandler extends TextWebSocketHandler {
             if (rooms.get(sigReq.getRoomName()) == null) {
                 rooms.put(sigReq.getRoomName(), new Room(sigReq.getRoomName(), sigReq.getPassword(), session));
                 users.put(session.getId(), new User(session, sigReq.getRoomName()));
-                System.out.println("방을 생성했습니다. 방 이름: " +sigReq.getRoomName());
+                System.out.println("방을 생성했습니다. 방 이름: " + sigReq.getRoomName());
                 sigRes.setData("Created");
             } else {
                 System.out.println("방 생성에 실패했습니다.");
@@ -84,18 +84,18 @@ public class SignalingHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         System.out.println("웹소켓 연결이 끊겼습니다. 끊긴 세션 아이디는 " + session.getId() + "입니다.");
-        if(rooms.get(users.get(session.getId()).getRoomName()).isFull()){
+        if (rooms.get(users.get(session.getId()).getRoomName()).isFull()) {
             rooms.get(users.get(session.getId()).getRoomName()).removeMember(session);
             System.out.println("클라이언트가 방에서 나갔습니다. 방에 남아있는 사람이 있어 방은 사라지지 않았습니다.");
-            System.out.println("---> "+rooms.toString());
-        }else{
+            System.out.println("---> " + rooms.toString());
+        } else {
             rooms.remove(users.get(session.getId()).getRoomName());
             System.out.println("클라이언트가 방에서 나갔습니다. 방에 남아있는 사람이 없어 방이 사라졌습니다.");
-            System.out.println("---> "+rooms.toString());
+            System.out.println("---> " + rooms.toString());
         }
         users.remove(session.getId());
         System.out.println("방을 나간 클라이언트의 정보를 삭제했습니다.");
-        System.out.println("---> "+users.toString());
+        System.out.println("---> " + users.toString());
     }
 
 }

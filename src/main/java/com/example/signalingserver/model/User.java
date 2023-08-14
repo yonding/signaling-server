@@ -13,7 +13,7 @@ public class User {
     WebSocketSession session;
     String roomName;
 
-    public User(WebSocketSession session, String roomName){
+    public User(WebSocketSession session, String roomName) {
         this.session = session;
         this.roomName = roomName;
     }
