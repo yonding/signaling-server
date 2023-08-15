@@ -80,6 +80,7 @@ public class SignalingHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        relayDataToPeer("Inform", "Left", session, new SignalData());
         System.out.println("웹소켓 연결이 끊겼습니다. 끊긴 세션 아이디는 " + session.getId() + "입니다.");
         if (rooms.get(users.get(session.getId()).getRoomName()).isFull()) {
             rooms.get(users.get(session.getId()).getRoomName()).removeMember(session);
