@@ -8,4 +8,4 @@ WebRTC로 구현한 P2P 화상채팅에서는 미디어 데이터가 중앙서�
 
 
 ## 구성요소 간 상호작용
-![image](https://github.com/yonding/signaling-server/assets/70754463/af16f731-1637-4c8b-9d20-b34cf3f26d6a)
+![signaling architecture](https://github.com/yonding/signaling-server/assets/70754463/9944dc80-8833-4edc-956f-e97791758f0a)
